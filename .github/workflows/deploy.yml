@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'docs/**'
+      - 'apps/**'
   workflow_dispatch:
 
 permissions:
@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   deploy:
-    name: Deploy
+    name: Build & Deploy
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -28,13 +28,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+        working-directory: apps
+
+      - name: Build
+        run: bun run build
+        working-directory: apps
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs
+          path: apps/dist
 
       - name: Deploy to GitHub Pages
         id: deployment
