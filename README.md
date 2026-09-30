@@ -13,35 +13,59 @@ A standardized GitHub label convention designed to be consistent, scannable, and
 
 ## Install the agent skill
 
-Use **Clean Labels** on its own, like the standalone
-[Clean Coding](https://github.com/wgtechlabs/clean-coding) and
-[Clean Code Review](https://github.com/wgtechlabs/clean-code-review) plugins:
+Install **Clean Labels** as a standalone skill for AI assistants. It includes its
+own instructions and works without Clean Workflow or another Clean skill.
+You can also use the convention manually with the guides below.
+
+### Requirements
+
+Use a Codex version with `codex plugin` support; installation and discovery
+were verified with Codex CLI `0.158.0-alpha.2.1`.
+Repository operations need authenticated GitHub access. Template setup uses the official [GitHub Labels Template (GHLT)](https://github.com/warengonzaga/github-labels-template) CLI; installing this skill does not install GHLT.
+
+### Install in Codex
+
+Install the stable version from `main`:
 
 ```sh
-codex plugin marketplace add wgtechlabs/clean-labels
+codex plugin marketplace add wgtechlabs/clean-labels --ref main
 codex plugin add clean-labels@clean-labels
+codex plugin list --marketplace clean-labels --json
 ```
 
-Start a new chat and invoke `$clean-labels`, for example:
+Confirm the plugin is installed and enabled, then start a new chat and invoke
+`$clean-labels`. Installation alone does not authorize repository changes.
+
+### Example requests
 
 ```text
-$clean-labels review the labels in owner/repo without changing them
+$clean-labels audit the labels in owner/repo without changing them
+
+$clean-labels adopt the 21 core labels in owner/repo and preserve existing labels
+
+$clean-labels label PR 42 in owner/repo using its existing labels
 ```
 
-For another Agent Skills-compatible host, load the entire
-[`skills/clean-labels/`](skills/clean-labels/SKILL.md) folder using that host's skill
-installation mechanism. All essential instructions are included; no other
-Clean skill is required. The host still needs the tools and access used by the
-requested operation. Installation does not authorize repository changes.
+Audits are read-only. Additive setup preserves existing labels; destructive
+migration needs explicit authorization. Normal setup excludes optional event
+labels. With GHLT `0.9.3`, core-only migration is unsupported, so the skill
+reports that limitation before deletion and offers additive setup.
 
-[Clean Workflow](https://github.com/wgtechlabs/clean-workflow) is the broader
-bundle for development, review, and Git/delivery guidance. Use this standalone
-plugin when you only want Clean Labels. The new skill is maintained here;
-adding its released versions to that bundle is separate downstream work.
+### Other Agent Skills hosts
 
-### Updates and development installation
+Load the entire [`skills/clean-labels/`](skills/clean-labels/SKILL.md) folder using
+your host's skill installation mechanism. The instructions are self-contained;
+the host must still provide the tools required for the requested operation.
+Other vendors' hosts have not been verified in this repository's test record.
 
-To refresh a Git marketplace and reinstall its plugin:
+[Clean Workflow](https://github.com/wgtechlabs/clean-workflow) provides broader
+development, review, and delivery guidance. Choose this standalone plugin for
+Clean Labels alone. This repository owns the skill; updates to the broader bundle
+are maintained separately.
+
+### Update or remove
+
+Refresh the configured marketplace and reinstall its plugin:
 
 ```sh
 codex plugin marketplace upgrade clean-labels
@@ -49,24 +73,32 @@ codex plugin remove clean-labels@clean-labels
 codex plugin add clean-labels@clean-labels
 ```
 
-Start a new chat after updating. The plugin version in
-`.codex-plugin/plugin.json` versions the installable package separately from
-the convention's specification version. Maintainers should bump the package
-version when releasing skill changes; this addition does not publish a release
-or add automated release infrastructure.
-
-Before a change reaches the default branch, test its feature branch with:
+Start a new chat after updating. To uninstall and remove its marketplace:
 
 ```sh
-codex plugin marketplace add wgtechlabs/clean-labels --ref BRANCH_OR_TAG
+codex plugin remove clean-labels@clean-labels
+codex plugin marketplace remove clean-labels
+```
+
+### Preview development changes
+
+To test `dev` before promotion to `main`, first remove an existing installation
+and same-named marketplace with the commands above, then run:
+
+```sh
+codex plugin marketplace add wgtechlabs/clean-labels --ref dev
 codex plugin add clean-labels@clean-labels
 ```
 
-For local development, replace the marketplace source with the absolute path
-to this checkout. Replace `BRANCH_OR_TAG` with the ref to test. Remove an existing
-same-named marketplace before switching sources. See
-[skill verification](tests/skill-scenarios.md) for installation checks and
-representative behavior scenarios.
+Use another branch or an existing tag instead of `dev` to test a specific ref.
+For local development, use the absolute checkout path as the marketplace source
+and omit `--ref`. Switch back to the stable installation commands after testing.
+See [skill verification](tests/skill-scenarios.md) for recorded installation
+results, behavior scenarios, and verification limits.
+
+The installable package is version `0.1.0`, tracked in
+[`.codex-plugin/plugin.json`](.codex-plugin/plugin.json). The version badge at
+the top of this README refers to the convention specification, not the plugin.
 
 ### Skill ownership
 
@@ -168,15 +200,22 @@ Where:
 Use the official [github-labels-template](https://github.com/warengonzaga/github-labels-template) CLI tool:
 
 ```bash
-# Apply all 21 labels to the current repo
-npx github-labels-template apply
+# Apply the 21 core labels to the current repo
+npx github-labels-template apply --exclude hacktoberfest,hacktoberfest-accepted
 
 # Apply labels from a specific category
 npx github-labels-template apply --category type
 
 # Apply to a specific repo
-npx github-labels-template apply --repo owner/repo
+npx github-labels-template apply --repo owner/repo --exclude hacktoberfest,hacktoberfest-accepted
 ```
+
+The exclusions omit GHLT's optional Hacktoberfest labels. Omit the exclusions
+only when those event labels are wanted. Default `apply` adds missing labels
+and preserves existing definitions, including mismatched colors or descriptions;
+inspect the result before claiming full conformity. GHLT `0.9.3` migration
+installs all 23 labels and has no exclusion option. Use filtered additive setup
+for core-only adoption; do not run migration expecting it to keep only 21 labels.
 
 ### Apply Manually via GitHub API
 
