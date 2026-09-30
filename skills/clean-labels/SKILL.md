@@ -72,22 +72,29 @@ Use explicit targeting in every command:
 
 ```sh
 ghlt list --repo owner/repo
-ghlt apply --repo owner/repo
+ghlt apply --repo owner/repo --exclude hacktoberfest,hacktoberfest-accepted
 ```
 
 `list` inspects current definitions. `apply` adds missing template labels and
 preserves existing definitions by default; use `--force` only when overwriting
 matching names' template values is intended and authorized. Re-read the result
 and report skipped mismatched definitions rather than claiming full conformity.
-Inspect the installed tool's help and template behavior when its version may
-differ; GHLT can include optional labels beyond the core convention.
+The exclusions keep GHLT v0.9.3's two optional event labels out of normal
+setup. Omit them only when the user requests those event labels. Existing
+event labels are preserved. Inspect the installed tool's help and template
+before applying; adjust supported filters if a later version adds other
+non-core labels.
 
-For an explicitly authorized clean-slate migration, use
-`ghlt migrate -y --repo owner/repo`. This deletes existing labels before applying
-the template and can remove issue/PR assignments. Establish that destructive
-scope before executing it; a request to adopt the convention alone is not a
-request for deletion. Do not reproduce GHLT with custom scripts or individual
-API calls for bulk template setup.
+For an explicitly authorized clean-slate migration, inspect `ghlt migrate
+--help` and the template first. GHLT v0.9.3 migration has no exclusion option
+and installs all 23 labels. If only the 21 core labels are requested, report
+that limitation before any deletion and offer the filtered additive setup
+above; do not run migration or pass it an unsupported `--exclude` flag.
+Use `ghlt migrate -y --repo owner/repo` only when both deletion and the full
+template, including event labels, are authorized. Migration can remove issue/PR
+assignments; a request to adopt the convention alone does not authorize that
+loss. Do not reproduce GHLT with custom scripts or individual API calls for
+bulk template setup.
 
 ## Assign labels to an issue or PR
 
