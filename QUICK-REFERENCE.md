@@ -68,22 +68,30 @@
 ## Quick Apply
 
 ```bash
-# All 21 labels (npx)
-npx github-labels-template apply
+# All 21 core labels (npx)
+npx github-labels-template apply --exclude hacktoberfest,hacktoberfest-accepted
 
 # Specific category
 npx github-labels-template apply --category type
 npx github-labels-template apply --category status
-npx github-labels-template apply --category community
+npx github-labels-template apply --category community --exclude hacktoberfest,hacktoberfest-accepted
 npx github-labels-template apply --category resolution
 npx github-labels-template apply --category area
 
 # Specific repo
-npx github-labels-template apply --repo owner/repo
-
-# Clean slate (wipe + apply)
-npx github-labels-template migrate
+npx github-labels-template apply --repo owner/repo --exclude hacktoberfest,hacktoberfest-accepted
 ```
+
+Default `apply` preserves existing labels and their definitions. The exclusions
+omit optional Hacktoberfest labels; omit them only when those event labels are
+wanted. Existing event labels are not deleted.
+
+**Clean-slate migration:** GHLT `0.9.3` installs all 23 labels and does not
+support exclusions for `migrate`. For core-only adoption, use filtered additive
+setup above. Run `npx github-labels-template migrate --repo owner/repo` only
+when deletion, loss of existing assignments, and the full template including
+event labels are intended and authorized. Check the installed version's help
+before migration; do not pass `--exclude` to a version that does not support it.
 
 ---
 
