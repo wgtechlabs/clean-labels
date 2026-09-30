@@ -1,0 +1,32 @@
+{
+  "name": "clean-labels",
+  "version": "0.1.0",
+  "description": "Audit label definitions, set up templates, and assign issue or pull-request labels.",
+  "author": {
+    "name": "WG Technology Labs",
+    "url": "https://github.com/wgtechlabs"
+  },
+  "homepage": "https://github.com/wgtechlabs/clean-labels",
+  "repository": "https://github.com/wgtechlabs/clean-labels",
+  "license": "MIT",
+  "keywords": [
+    "github-labels",
+    "workflow",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Clean Labels",
+    "shortDescription": "Audit and apply Clean Labels on GitHub",
+    "longDescription": "Audit label definitions, set up templates, and assign issue or pull-request labels.",
+    "developerName": "WG Technology Labs",
+    "category": "Productivity",
+    "capabilities": [
+      "Instructions"
+    ],
+    "websiteURL": "https://github.com/wgtechlabs/clean-labels",
+    "defaultPrompt": [
+      "Use $clean-labels to review the labels in owner/repo without changing them."
+    ]
+  }
+}

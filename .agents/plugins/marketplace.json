@@ -1,0 +1,20 @@
+{
+  "name": "clean-labels",
+  "interface": {
+    "displayName": "Clean Labels"
+  },
+  "plugins": [
+    {
+      "name": "clean-labels",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
