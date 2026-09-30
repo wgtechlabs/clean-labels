@@ -14,14 +14,21 @@ import sys
 import tempfile
 
 root = Path(__file__).resolve().parents[1]
-skill = (root / 'skills/clean-labels/SKILL.md').read_text()
-command, = re.findall(r'^ghlt apply .+$', skill, re.MULTILINE)
-args = shlex.split(command)
-args[args.index('--repo') + 1] = 'fixture/core'
 ghlt = shutil.which('ghlt')
 if not ghlt:
     raise SystemExit('Install github-labels-template before running this check')
-args[0] = ghlt
+commands = set()
+for path in ('skills/clean-labels/SKILL.md', 'README.md', 'QUICK-REFERENCE.md'):
+    examples = re.findall(r'^(?:ghlt|npx github-labels-template) (apply .+|apply)$',
+                          (root / path).read_text(), re.MULTILINE)
+    assert examples, path
+    for example in examples:
+        args = [ghlt, *shlex.split(example)]
+        if '--repo' in args:
+            args[args.index('--repo') + 1] = 'fixture/core'
+        else:
+            args.extend(['--repo', 'fixture/core'])
+        commands.add(tuple(args))
 expected = {
     name: {'color': color, 'description': description}
     for name, color, description in re.findall(
@@ -52,12 +59,20 @@ else:
 ''')
     fake.chmod(0o755)
     environment = dict(os.environ, PATH=str(work) + os.pathsep + os.environ['PATH'])
-    for initial in ({}, {'custom': {'color': '123456', 'description': 'Keep me'},
-                        'bug': {'color': '000000', 'description': 'Keep mismatch'}}):
-        state.write_text(json.dumps(initial))
-        result = subprocess.run(args, cwd=work, env=environment, text=True,
-                                capture_output=True, timeout=60)
-        assert result.returncode == 0, result.stdout + result.stderr
-        actual = json.loads(state.read_text())
-        assert actual == {**expected, **initial}, actual
-    print('PASS: exactly 21 core labels; existing custom and mismatched labels preserved')
+    for args in sorted(commands):
+        selected = expected
+        if '--category' in args:
+            category = args[args.index('--category') + 1]
+            selected = {name: label for name, label in expected.items()
+                        if label['description'].lower().startswith('[' + category + ']')}
+            assert selected, category
+        for initial in ({}, {'custom': {'color': '123456', 'description': 'Keep me'},
+                            'bug': {'color': '000000', 'description': 'Keep mismatch'}}):
+            state.write_text(json.dumps(initial))
+            result = subprocess.run(args, cwd=work, env=environment, text=True,
+                                    capture_output=True, timeout=60)
+            assert result.returncode == 0, result.stdout + result.stderr
+            actual = json.loads(state.read_text())
+            assert actual == {**selected, **initial}, (args, actual)
+    print(f'PASS: {len(commands)} setup variants across skill, README, and quick reference; '
+          'only core labels selected; existing definitions preserved')

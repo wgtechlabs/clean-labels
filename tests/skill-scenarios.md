@@ -76,9 +76,10 @@ The behavior scenarios above remain separate checks.
 ## GHLT regression check
 
 Run `python3 tests/check-ghlt-core.py` with GHLT installed. On GHLT `0.9.3`,
-the exact additive command documented in the skill passed against a local fake
-`gh`: an empty repository received exactly the specification's 21 definitions,
-and preexisting custom labels and mismatched definitions were preserved.
+the additive commands documented in the skill, README, and quick reference
+passed against a local fake `gh`: full setup received exactly the specification's
+21 definitions, category examples received only their core subset, and
+preexisting custom labels and mismatched definitions were preserved.
 The fake never forwards commands to GitHub. No live labels were changed.
 Migration filtering is unavailable in this version; the skill now reports
 that limitation before deletion for a core-only request. Live migration and
